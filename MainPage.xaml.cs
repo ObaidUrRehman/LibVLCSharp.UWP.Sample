@@ -40,7 +40,7 @@ namespace LibVLCSharp.UWP.Sample
         public MainPage()
         {
             this.InitializeComponent();
-            AdjustScrollBar();
+            //AdjustScrollBar();
 
         }
 
@@ -68,9 +68,11 @@ namespace LibVLCSharp.UWP.Sample
             if (mp.MediaPlayer == null)
                 return;
 
-            y = (int)e.NewValue;
-            mp.MediaPlayer.CropGeometry = $"{clipWidth}x{clipHeight}+{x}+{y}";
+            rect.Y = (int)e.NewValue;
+
+            ApplyCrop();
             UpdateInfo();
+
         }
 
         private void ScrollBar_ValueChanged_1(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
@@ -78,27 +80,30 @@ namespace LibVLCSharp.UWP.Sample
             if (mp.MediaPlayer == null)
                 return;
 
-            x = (int)e.NewValue;
-            mp.MediaPlayer.CropGeometry = $"{clipWidth}x{clipHeight}+{x}+{y}";
+            rect.X = (int)e.NewValue;
+
+            ApplyCrop();
             UpdateInfo();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             // ZOOM IN
-            zoom = zoom + zoom_step;
-            mp.MediaPlayer.Scale = zoom;
-            AdjustScrollBar();
+            //zoom = zoom + zoom_step;
+            //mp.MediaPlayer.Scale = zoom;
+            //AdjustScrollBar();
+
+            ApplyCrop();
             UpdateInfo();
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             // ZOOM OUT
-            zoom = zoom - zoom_step;
-            mp.MediaPlayer.Scale = zoom;
-            AdjustScrollBar();
-            UpdateInfo();
+            //zoom = zoom - zoom_step;
+            //mp.MediaPlayer.Scale = zoom;
+            ////AdjustScrollBar();
+            //UpdateInfo();
 
         }
 
@@ -109,12 +114,14 @@ namespace LibVLCSharp.UWP.Sample
             zoom = 0;
             mp.MediaPlayer.CropGeometry = "";
             mp.MediaPlayer.Scale = zoom;
-            AdjustScrollBar();
+            //AdjustScrollBar();
             UpdateInfo();
         }
 
+        System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0,0,640,360);
         private void Button_Click_7(object sender, RoutedEventArgs e)
         {
+
             if (mp.MediaPlayer.State == Shared.VLCState.Playing)
                 mp.MediaPlayer.Pause();
             else
@@ -122,6 +129,24 @@ namespace LibVLCSharp.UWP.Sample
 
             UpdateInfo();
 
+        }
+
+        private void ButtonUp_Click(object sender, RoutedEventArgs e)
+        {
+            
+
+        }
+
+        private void ButtonDown_Click(object sender, RoutedEventArgs e)
+        {
+            rect.Y = rect.Y - 20;
+            ApplyCrop();
+        }
+
+        private void ApplyCrop()
+        {
+            mp.MediaPlayer.CropGeometry = $"{rect.Width + rect.X}x{rect.Height + rect.Y}+{rect.X}+{rect.Y}";
+            UpdateInfo();
         }
     }
 }

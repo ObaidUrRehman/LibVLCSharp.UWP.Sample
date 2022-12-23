@@ -43,7 +43,7 @@
                 <ColumnDefinition Width="1*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            
+
             <lvs:VideoView 
                            Grid.Column="0"  Name="mp" MediaPlayer="{Binding MediaPlayer}" 
                            Width="1280" Height="534" BorderThickness="2" BorderBrush="Azure" Foreground="Red" 
@@ -55,13 +55,13 @@
                 </interactivity:Interaction.Behaviors>
             </lvs:VideoView>
 
-            <ScrollBar x:Name="verticalScroll" Grid.Column="1" Orientation="Vertical" ViewportSize="100" Maximum="600" Minimum="0" SmallChange="1" LargeChange="5"
+            <ScrollBar x:Name="verticalScroll" Grid.Column="1" Orientation="Vertical" ViewportSize="100" Maximum="360" Minimum="0" SmallChange="1" LargeChange="5"
                        Visibility="Visible" IndicatorMode="MouseIndicator" ValueChanged="ScrollBar_ValueChanged" />
 
         </Grid>
         <Grid Grid.Row="3">
-            <ScrollBar x:Name="horizontalScroll" Grid.Column="0" Orientation="Horizontal" ViewportSize="100" Minimum="0"  Maximum="1000"
-                       Visibility="Visible" IndicatorMode="MouseIndicator" ValueChanged="ScrollBar_ValueChanged_1" Margin="0,46,0,0" ></ScrollBar>
+            <ScrollBar x:Name="horizontalScroll" Grid.Column="0" Orientation="Horizontal" ViewportSize="100" Minimum="0"  Maximum="640"
+                       Visibility="Visible" IndicatorMode="MouseIndicator" ValueChanged="ScrollBar_ValueChanged_1" ></ScrollBar>
         </Grid>
 
 
