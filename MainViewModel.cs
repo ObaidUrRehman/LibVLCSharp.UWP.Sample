@@ -64,7 +64,9 @@ namespace LibVLCSharp.UWP.Sample
         {
             LibVLC = new LibVLC(enableDebugLogs: true, eventArgs.SwapChainOptions);
             MediaPlayer = new MediaPlayer(LibVLC);
-            var media = new Media(LibVLC, new Uri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"));
+            //var media = new Media(LibVLC, new Uri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"));
+            var media = new Media(LibVLC, new Uri("rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4"));
+
 
             MediaPlayer.Play(media);
             

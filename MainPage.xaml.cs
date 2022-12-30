@@ -27,8 +27,8 @@ namespace LibVLCSharp.UWP.Sample
         int scaledVideoHeight => (int)(clipHeight * zoom);
         int scaledVideoWidth => (int)(clipWidth * zoom);
 
-        float zoom_step = 0.1f;
-        
+        float zoomFactor = 0f;
+
         // This is actually scale
         float zoom = 0;
 
@@ -36,7 +36,11 @@ namespace LibVLCSharp.UWP.Sample
         float xOffset = 0f;
         float yOffset = 0f;
 
-        
+
+        System.Drawing.Rectangle clipRect = new System.Drawing.Rectangle(0, 0, 640, 360);
+
+
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -46,8 +50,16 @@ namespace LibVLCSharp.UWP.Sample
 
         private void AdjustScrollBar()
         {
-            verticalScroll.Maximum = (scaledVideoHeight - clipHeight);
-            horizontalScroll.Maximum = (scaledVideoWidth - clipWidth);
+
+
+            // Get video dimensions
+            mp.MediaPlayer.Size(0, ref vidWidth, ref vidHeight);
+
+            verticalScroll.Maximum = (vidHeight - clipRect.Height);
+            horizontalScroll.Maximum = (vidWidth - clipRect.Width);
+
+
+
         }
 
         private void UpdateInfo()
@@ -55,7 +67,7 @@ namespace LibVLCSharp.UWP.Sample
             mp.MediaPlayer.Size(0, ref vidWidth, ref vidHeight);
 
             InfoText.Text =
-                $"Scale = {zoom}, ClipGeometry = {mp.MediaPlayer.CropGeometry}" + System.Environment.NewLine +
+                $"Scale = {mp.MediaPlayer.Scale}, ClipGeometry = {mp.MediaPlayer.CropGeometry}" + System.Environment.NewLine +
                 $"Video Dimensions = {zoom * clipWidth } x { zoom * clipHeight}" + System.Environment.NewLine +
                 $"Video Dimensions From Player = {vidWidth } x { vidHeight}" + System.Environment.NewLine +
                 $"H.Scroll = {horizontalScroll.Value} / {horizontalScroll.Maximum}" + System.Environment.NewLine +
@@ -68,7 +80,7 @@ namespace LibVLCSharp.UWP.Sample
             if (mp.MediaPlayer == null)
                 return;
 
-            rect.Y = (int)e.NewValue;
+            clipRect.Y = (int)e.NewValue;
 
             ApplyCrop();
             UpdateInfo();
@@ -80,7 +92,7 @@ namespace LibVLCSharp.UWP.Sample
             if (mp.MediaPlayer == null)
                 return;
 
-            rect.X = (int)e.NewValue;
+            clipRect.X = (int)e.NewValue;
 
             ApplyCrop();
             UpdateInfo();
@@ -89,22 +101,92 @@ namespace LibVLCSharp.UWP.Sample
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             // ZOOM IN
-            //zoom = zoom + zoom_step;
-            //mp.MediaPlayer.Scale = zoom;
-            //AdjustScrollBar();
+            zoomFactor = (float)(zoomFactor + 0.25);
 
-            ApplyCrop();
+            // Use scale to Zoom in
+            if (zoomFactor < 0)
+            {
+                mp.MediaPlayer.Scale = (float)(mp.MediaPlayer.Scale) + System.Math.Abs(zoomFactor);
+            }
+            else if (zoomFactor == 0)
+            {
+                mp.MediaPlayer.Scale = 0;
+            }
+            else // Use clip geometry to Zoom in
+            {
+                mp.MediaPlayer.Size(0, ref vidWidth, ref vidHeight);
+
+                // max zoom in check
+                if ((int)vidWidth - (vidWidth * zoomFactor) == 0)
+                {
+                    //revert zoom step
+                    zoomFactor = (float)(zoomFactor - 0.25);
+                    return;
+                }
+
+                
+                clipRect = new System.Drawing.Rectangle(0, 0,
+                    (int)((int)vidWidth - (vidWidth * zoomFactor)),
+                    (int)((int)vidHeight - (vidHeight * zoomFactor)));
+
+                ApplyCrop();
+                AdjustScrollBar();
+            }
+
             UpdateInfo();
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             // ZOOM OUT
-            //zoom = zoom - zoom_step;
-            //mp.MediaPlayer.Scale = zoom;
-            ////AdjustScrollBar();
-            //UpdateInfo();
+            zoomFactor = (float)(zoomFactor - 0.25);
 
+            mp.MediaPlayer.Size(0, ref vidWidth, ref vidHeight);
+
+            // Zoom out using clip geometry
+            if (clipRect.Width < vidWidth && clipRect.Height < vidHeight)
+            {
+                if (zoomFactor == 0)
+                    clipRect = new System.Drawing.Rectangle(0, 0,
+                    (int)(vidWidth),
+                    (int)(vidHeight));
+
+                else
+                    clipRect = new System.Drawing.Rectangle(0, 0,
+                        (int)(clipRect.Width + (vidWidth * zoomFactor)),
+                        (int)(clipRect.Height + (vidHeight * zoomFactor)));
+                
+                ApplyCrop();
+            }
+            else // zoom out using scale
+            {
+                double initialScaleFactor = 0;
+                if (vidHeight * vidWidth > mp.ActualHeight * mp.ActualWidth)
+                {
+                    initialScaleFactor = ((mp.ActualHeight * mp.ActualWidth) / (vidHeight * vidWidth)) * 100;
+                }
+                else if (mp.ActualHeight * mp.ActualWidth > vidHeight * vidWidth)
+                {
+                    initialScaleFactor = ((vidHeight * vidWidth) / (mp.ActualHeight * mp.ActualWidth)) * 100;
+                }
+                else if (mp.ActualWidth == vidWidth && mp.ActualHeight == vidHeight)
+                {
+                    initialScaleFactor = 1;
+                }
+
+
+                if (mp.MediaPlayer.Scale == 0f)
+                {
+                    mp.MediaPlayer.Scale = (float)(initialScaleFactor);
+                }
+                else
+                {
+                    mp.MediaPlayer.Scale = mp.MediaPlayer.Scale + zoomFactor;
+                }
+            }
+
+            UpdateInfo();
+            AdjustScrollBar();
         }
 
         private void Button_Click_6(object sender, RoutedEventArgs e)
@@ -112,13 +194,12 @@ namespace LibVLCSharp.UWP.Sample
             // RESET
             x = y = 0;
             zoom = 0;
+            zoomFactor = 0;
             mp.MediaPlayer.CropGeometry = "";
             mp.MediaPlayer.Scale = zoom;
-            //AdjustScrollBar();
             UpdateInfo();
         }
 
-        System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0,0,640,360);
         private void Button_Click_7(object sender, RoutedEventArgs e)
         {
 
@@ -133,19 +214,25 @@ namespace LibVLCSharp.UWP.Sample
 
         private void ButtonUp_Click(object sender, RoutedEventArgs e)
         {
-            
+
 
         }
 
         private void ButtonDown_Click(object sender, RoutedEventArgs e)
         {
-            rect.Y = rect.Y - 20;
+            clipRect.Y = clipRect.Y - 20;
             ApplyCrop();
         }
 
         private void ApplyCrop()
         {
-            mp.MediaPlayer.CropGeometry = $"{rect.Width + rect.X}x{rect.Height + rect.Y}+{rect.X}+{rect.Y}";
+            mp.MediaPlayer.CropGeometry = $"{clipRect.Width + clipRect.X}x{clipRect.Height + clipRect.Y}+{clipRect.X}+{clipRect.Y}";
+            UpdateInfo();
+        }
+
+        private void scale_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            mp.MediaPlayer.Scale = (float)e.NewValue;
             UpdateInfo();
         }
     }

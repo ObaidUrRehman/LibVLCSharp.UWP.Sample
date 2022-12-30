@@ -35,19 +35,20 @@
             <Button x:Name="ZoomOutBtn" Click="Button_Click_1"  Grid.Column="1" FontSize="50" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="-"></Button>
             <TextBlock Grid.Column="4" Name="InfoText" FontSize="9"></TextBlock>
             <Button Click="Button_Click_6"  Grid.Column="3" FontSize="50" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="RESET"></Button>
-            <Button Click="Button_Click_7"  Grid.Column="2" FontSize="50" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="STOP/PLAY"></Button>
+            <!--<Button Click="Button_Click_7"  Grid.Column="2" FontSize="50" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="STOP/PLAY"></Button>-->
+            <Slider Minimum="0" Grid.Column="2" Maximum="10" StepFrequency="0.25" Name="scale" ValueChanged="scale_ValueChanged" />
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="10*"></ColumnDefinition>
-                <ColumnDefinition Width="1*"></ColumnDefinition>
+                <ColumnDefinition Width="1280"></ColumnDefinition>
+                <ColumnDefinition Width="20*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
 
             <lvs:VideoView 
                            Grid.Column="0"  Name="mp" MediaPlayer="{Binding MediaPlayer}" 
-                           Width="1280" Height="534" BorderThickness="2" BorderBrush="Azure" Foreground="Red" 
-                           BackgroundSizing="InnerBorderEdge" >
+                            BorderThickness="2" BorderBrush="Azure" Foreground="Red" 
+                           BackgroundSizing="InnerBorderEdge" Width="1280" Height="720" >
                 <interactivity:Interaction.Behaviors>
                     <interactions:EventTriggerBehavior EventName="Initialized">
                         <interactions:InvokeCommandAction Command="{Binding InitializedCommand}"/>
@@ -55,12 +56,12 @@
                 </interactivity:Interaction.Behaviors>
             </lvs:VideoView>
 
-            <ScrollBar x:Name="verticalScroll" Grid.Column="1" Orientation="Vertical" ViewportSize="100" Maximum="360" Minimum="0" SmallChange="1" LargeChange="5"
+            <ScrollBar x:Name="verticalScroll" Grid.Column="1" Orientation="Vertical" ViewportSize="100" Maximum="0" Minimum="0" SmallChange="1" LargeChange="5"
                        Visibility="Visible" IndicatorMode="MouseIndicator" ValueChanged="ScrollBar_ValueChanged" />
 
         </Grid>
         <Grid Grid.Row="3">
-            <ScrollBar x:Name="horizontalScroll" Grid.Column="0" Orientation="Horizontal" ViewportSize="100" Minimum="0"  Maximum="640"
+            <ScrollBar x:Name="horizontalScroll" Grid.Column="0" Orientation="Horizontal" ViewportSize="100" Minimum="0"  Maximum="0"
                        Visibility="Visible" IndicatorMode="MouseIndicator" ValueChanged="ScrollBar_ValueChanged_1" ></ScrollBar>
         </Grid>
 
